@@ -1,0 +1,1 @@
+Result: No division by zero
