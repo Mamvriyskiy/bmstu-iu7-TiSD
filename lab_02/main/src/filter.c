@@ -3,7 +3,7 @@
 #include "filter.h"
 #include "print_data.h"
 
-void filter_search_car(cars_t *cars, unsigned int a, unsigned int b, char *brand, size_t size)
+void filter_search_car(cars_t *cars, int a, int b, char *brand, size_t size)
 {
     int k = 0, flag = 0;
     for (size_t i = 0; i < size; i++)
@@ -21,12 +21,13 @@ void filter_search_car(cars_t *cars, unsigned int a, unsigned int b, char *brand
         {
             flag = 1;
             print_header_for_cars();
-            print_car(cars[i]);
         }
+        printf("| %3zu ", i);
+        print_car(cars[i]);
 
     }
     if (flag == 0)
-        printf("\nМашины не найдены\n");
+        printf("\nМашины не найдены.\n");
 }
 
 void delete_cars(cars_t *cars, cars_key_t *keys, size_t position, size_t *size)
@@ -52,7 +53,7 @@ int add_new_struct(cars_t *cars, cars_key_t *keys, size_t *size)
 {
     (*size)++;
     size_t i = *size - 1;
-    unsigned int price_car = 0;
+    int price_car = 0;
     printf("\nBRAND: ");
     if (scanf("%s", cars[i].brand) != 1)
         return -1;
@@ -60,8 +61,11 @@ int add_new_struct(cars_t *cars, cars_key_t *keys, size_t *size)
     if (scanf("%s", cars[i].country) != 1)
         return -1;
     printf("\nPRICE: ");
-    if (scanf("%u", &price_car) != 1)
+    if (scanf("%d", &price_car) != 1 || price_car < 0)
+    {
+        printf("Цена введена неверно.\n");
         return -1;
+    }
     else
         cars[i].price = price_car;
     printf("\nCOLOR: ");
@@ -75,24 +79,39 @@ int add_new_struct(cars_t *cars, cars_key_t *keys, size_t *size)
     {
         printf("\nGARANTY: ");
         cars[i].type = NEW;
-        if (scanf("%u", &cars[i].car_type.new_car.garanty) != 1)
+        if (scanf("%d", &cars[i].car_type.new_car.garanty) != 1 || cars[i].car_type.new_car.garanty < 0)
+        {
+            printf("Гарантия введена неверно.\n");
             return -1;
+        }
     }
     else
     {
         printf("\nRELEASE YEAR: ");
         cars[i].type = OLD;
-        if (scanf("%u", &cars[i].car_type.old_car.year) != 1)
+        if (scanf("%d", &cars[i].car_type.old_car.year) != 1 || cars[i].car_type.old_car.year < 0)
+        {
+            printf("Год производства введен неверно.\n");
             return -1;
+        }
         printf("\nMILEAGE: ");
-        if (scanf("%u", &cars[i].car_type.old_car.mileage) != 1)
+        if (scanf("%d", &cars[i].car_type.old_car.mileage) != 1 || cars[i].car_type.old_car.mileage < 0)
+        {
+            printf("Пробег введен неверно.\n");
             return -1;
+        }
         printf("\nREPAIR AMOUNT: ");
-        if (scanf("%u", &cars[i].car_type.old_car.count_repair) != 1)
+        if (scanf("%d", &cars[i].car_type.old_car.count_repair) != 1 || cars[i].car_type.old_car.count_repair < 0)
+        {
+            printf("Количесвто ремонтов введено неверно.\n");
             return -1;
+        }
         printf("\nOWNER AMOUNT: ");
-        if (scanf("%u", &cars[i].car_type.old_car.count_owner) != 1)
+        if (scanf("%d", &cars[i].car_type.old_car.count_owner) != 1 || cars[i].car_type.old_car.count_owner < 0)
+        {
+            printf("Количесвто собственников введено неверно.\n");
             return -1;
+        }
     }
     
     keys[i].index = i;

@@ -4,7 +4,7 @@
 #define MAX_STR_LEN_BRAND 26
 #define MAX_STR_LEN_COUNTRY 26
 #define MAX_STR_LEN_COLOR 26
-#define CARS_COUNT_MAX 50
+#define CARS_COUNT_MAX 100
 
 //Состояние машины - новая, старая
 typedef enum 
@@ -16,17 +16,17 @@ typedef enum
 //Гарантия, если машина новая 
 typedef struct 
 {
-    unsigned int garanty;
+    int garanty;
 } new_car_t;
 
 
 //Данные, елси машина старая
 typedef struct 
 {
-    unsigned int year;
-    unsigned int mileage;
-    unsigned int count_repair;
-    unsigned int count_owner;
+    int year;
+    int mileage;
+    int count_repair;
+    int count_owner;
 } old_car_t;
 
 //общая структура 
@@ -34,7 +34,7 @@ typedef struct
 {
     char brand[MAX_STR_LEN_BRAND];
     char country[MAX_STR_LEN_COUNTRY];
-    unsigned int price;
+    int price;
     char color[MAX_STR_LEN_COLOR];
     car_type_t type;
     union
@@ -48,7 +48,7 @@ typedef struct
 typedef struct 
 {
     size_t index;
-    unsigned int price;
+    int price;
 } cars_key_t;
 
 #endif

@@ -4,8 +4,8 @@
 #include "main.h"
 
 void bubble_sorted_keys(cars_key_t *keys, size_t size);
-void inserts_sorted_keys(cars_key_t *keys, size_t size);
-void inserts_sorted_cars(cars_t *cars, size_t size);
+void qsort_sorted_keys(cars_key_t *keys, int first, int last);
+void qsort_sorted_cars(cars_t *cars, int first, int last);
 void bubble_sorted_cars(cars_t *cars, size_t size);
 void swap_el_keys(cars_key_t *first, cars_key_t *second);
 void swap_el_cars(cars_t *first, cars_t *second);
