@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "errors.h"
 #include "main.h"
 #include "multiplication_matrix.h"
@@ -70,17 +71,8 @@ int multiplication_usuale_matrix(usuale_matrix_t *a, vector_matrix_t *c, usuale_
     return OK;
 }
 
-void print_result_usuale_matrix(usuale_matrix_t *result_a)
+int multiplication_sepical_matrix(special_matrix_t *b, vector_matrix_t *c, special_matrix_t *result_b)
 {
-    int a_n = result_a->n;
-
-    for (int j = 0; j < a_n; j++)
-        printf("%d\n", result_a->data[j][0]);
-}
-
-void multiplication_sepical_matrix(special_matrix_t *b, vector_matrix_t *c, special_matrix_t *result_b)
-{
-    int b_n = b->n;
     int b_m = b->m;
 
     int c_n = c->n;
@@ -91,22 +83,69 @@ void multiplication_sepical_matrix(special_matrix_t *b, vector_matrix_t *c, spec
         return -3;
     }
 
-    result_b->n = b_n;
+    result_b->n = b_m;
     result_b->m = 1;
 
-    for (int i = 0; i < b_n; i++)
+    if (alloc_special_matrix(result_b, b_m) != OK)
+        return -4;
+
+    initialization_zero(result_b->a, b_m);
+    for (int i = 0; i < b_m; i++)
     {
         int el = b->a[i];
         int ja = b->ja[i];
-        int ia = b->ia[i];
 
         for (int j = 0; j < b_m; j++)
         {
             if (c->ja[j] == ja)
                 result_b->a[i] += el * c->a[j];
         }
+        result_b->ia[i] = 0;
+        result_b->ja[i] = i;
     }
+
+    create_result(result_b);
+    return OK;
 }
 
-void iniccializ_zero
+void initialization_zero(int *a, int n)
+{
+    for (int i = 0; i < n; i++)
+        a[i] = 0;
+}
 
+
+int create_result(special_matrix_t *result)
+{
+    int n = result->n;
+    int count = 0;
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        if (result->a[i] == 0)
+        {
+            count++;
+            if (result->a[i + 1] != 0)
+                result->a[i] = result->a[i + 1];
+        }
+
+    }
+    if (result->a[n - 1] == 0)
+        count++;
+
+    int *data = realloc(result->a, n - count);
+    if (data == NULL)
+        return -5;
+    
+    result->a = data;
+
+    return OK;
+}
+
+void print_result_matrix(usuale_matrix_t *result_a)
+{
+    int a_n = result_a->n;
+
+    for (int j = 0; j < a_n; j++)
+        printf("%d\n", result_a->data[j][0]);
+}

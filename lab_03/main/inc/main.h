@@ -9,6 +9,11 @@ typedef struct
     int **data; //обычная матрица
 } usuale_matrix_t;
 
+// typedef struct 
+// {
+//     int *list;
+// } list_t;
+
 //special_matrix
 typedef struct 
 {
