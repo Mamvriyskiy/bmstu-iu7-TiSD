@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ranlib.h>
 #include "errors.h"
 #include "create_matrix.h"
 #include "main.h"

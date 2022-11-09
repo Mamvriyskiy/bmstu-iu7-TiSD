@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ranlib.h>
 #include "errors.h"
 #include "create_vector.h"
 #include "create_matrix.h"
 #include "output_information.h"
 #include "main.h"
+#include "multiplication_matrix.h"
 
-
-void input_vector(vector_matrix_t *c)
+void input_vector(vector_matrix_t *c, usuale_matrix_t *a)
 {
     int rc = OK;
     int num = -1;
@@ -27,10 +26,10 @@ void input_vector(vector_matrix_t *c)
         switch (num)
         {
             case 1:
-                create_vector(c);
+                create_vector(c, a);
                 break;
             case 2:
-                auto_create_vector(c);
+                auto_create_vector(c, a, 1, 0);
                 break;
             case 0:
                 rc = END_WORK_PROGRAMM;
@@ -39,7 +38,7 @@ void input_vector(vector_matrix_t *c)
     }
 }
 
-int create_vector(vector_matrix_t *c)
+int create_vector(vector_matrix_t *c, usuale_matrix_t *a)
 {
     int a_n, a_k;
 
@@ -60,11 +59,16 @@ int create_vector(vector_matrix_t *c)
 
     c->a = malloc(a_k * sizeof(int));
     c->ja = malloc(a_k * sizeof(int));
+    a->data = allocated_matrix(a_n , 1);
     c->n = a_n;
     c->k = a_k;
+    a->m = 1;
+    a->n = a_n;
 
     int n, el;
     printf("\nВвод разряженного стобца-вектора: \n");
+    initialization_zero_matrix(a->data, a_n, 1);
+
     for (int i = 0; i < a_k; i++)
     {
         int rc = -1;
@@ -83,6 +87,7 @@ int create_vector(vector_matrix_t *c)
                     {
                         c->a[i] = el;
                         c->ja[i] = n - 1;
+                        a->data[n - 1][0] = el;
                         rc = OK;
                     }
                 }
@@ -108,28 +113,49 @@ int check_position_vector(int *c, int count, int n)
     return OK;
 }
 
-int auto_create_vector(vector_matrix_t *c)
+int auto_create_vector(vector_matrix_t *c, usuale_matrix_t *a, int flag, int size)
 {
     int a_n;
 
-    printf("\nВведите количество строк матрицы: \n");
-
-    if (scanf("%d", &a_n) != 1 || a_n <= 0 || a_n > 1000)
+    if (flag == 1)
     {
-        printf("Данные введены неверно.\n");
-        return -3;
+        printf("\nВведите количество строк вектора: \n");
+
+        if (scanf("%d", &a_n) != 1 || a_n <= 0 || a_n > 1000)
+        {
+            printf("Данные введены неверно.\n");
+            return -3;
+        }
     }
+    else
+        a_n = size;
 
     c->a = malloc(a_n * sizeof(int));
     c->ja = malloc(a_n * sizeof(int));
+    a->data = allocated_matrix(a_n , 1);
     c->n = a_n;
     c->k = a_n;
+    a->m = 1;
+    a->n = a_n;
+
+    initialization_zero_matrix(a->data, a_n, 1);
 
     for (int i = 0; i < a_n; i++)
     {
-        c->a[i] = rand() % 100;
+        int el = rand() % 100;
+        c->a[i] = el;
         c->ja[i] = i;
+        a->data[i][0] = el;
     }
 
     return OK;
+}
+
+void initialization_zero_matrix(int **data, int n, int m)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+            data[i][j] = 0;
+    }
 }

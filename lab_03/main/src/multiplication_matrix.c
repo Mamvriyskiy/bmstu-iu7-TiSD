@@ -6,7 +6,7 @@
 #include "create_matrix.h"
 #include "output_information.h"
 
-void multiplication_matrix(usuale_matrix_t *a, special_matrix_t *b, vector_matrix_t *c, usuale_matrix_t *result_a, special_matrix_t *result_b)
+void multiplication_matrix(usuale_matrix_t *a, special_matrix_t *b, vector_matrix_t *c, usuale_matrix_t *result_a, special_matrix_t *result_b, usuale_matrix_t *vctr)
 {
     int rc = OK;
     int num = -1;
@@ -25,10 +25,10 @@ void multiplication_matrix(usuale_matrix_t *a, special_matrix_t *b, vector_matri
         switch (num)
         {
             case 1:
-                multiplication_usuale_matrix(a, c, result_a);
+                multiplication_usuale_matrix(a, vctr, result_a, 1);
                 break;
             case 2:
-                multiplication_sepical_matrix(b, c, result_b);
+                multiplication_special_matrix(b, c, result_b, 1);
                 break;
             case 0:
                 rc = END_WORK_PROGRAMM;
@@ -37,15 +37,14 @@ void multiplication_matrix(usuale_matrix_t *a, special_matrix_t *b, vector_matri
     }
 }
 
-
-int multiplication_usuale_matrix(usuale_matrix_t *a, vector_matrix_t *c, usuale_matrix_t *result_a)
+int multiplication_usuale_matrix(usuale_matrix_t *a, usuale_matrix_t *c, usuale_matrix_t *result_a, int flag)
 {
     int a_n = a->n;
     int a_m = a->m;
 
     int c_n = c->n;
 
-    if (a_m != c_n)
+    if (flag == 1 && a_m != c_n)
     {
         printf("\nУмножение провести невозможно. Разные размерности.\n");
         return -3;
@@ -58,53 +57,58 @@ int multiplication_usuale_matrix(usuale_matrix_t *a, vector_matrix_t *c, usuale_
     result_a->n = a_n;
     result_a->m = 1;
 
-    for (int i = 0; i < a_n; i++)
+    for (int i = 0; i < a_m; i++)
     {
-        int suml = 0;
         for (int k = 0; k < a_m; k++)
-            suml += a->data[i][k] * c->a[k];  
-        result_a->data[i][0] = suml;
+            result_a->data[i][0] += a->data[i][k] * c->data[k][0]; 
     }
 
-    print_result_usuale_matrix(result_a);
+    if (flag == 1)
+        print_result_matrix(result_a);
 
     return OK;
 }
 
-int multiplication_sepical_matrix(special_matrix_t *b, vector_matrix_t *c, special_matrix_t *result_b)
+int multiplication_special_matrix(special_matrix_t *b, vector_matrix_t *c, special_matrix_t *result_b, int flag)
 {
     int b_m = b->m;
-
+    int b_n = b->n;
+    int b_k = b->k;
+    
     int c_n = c->n;
+    int c_k = c->k;
 
-    if (b_m != c_n)
+    if (flag == 1 && b_m != c_n)
     {
         printf("\nУмножение провести невозможно. Разные размерности.\n");
         return -3;
     }
 
-    result_b->n = b_m;
+    result_b->n = b_n;
     result_b->m = 1;
 
     if (alloc_special_matrix(result_b, b_m) != OK)
         return -4;
 
     initialization_zero(result_b->a, b_m);
-    for (int i = 0; i < b_m; i++)
+    for (int i = 0; i < b_k; i++)
     {
-        int el = b->a[i];
-        int ja = b->ja[i];
-
-        for (int j = 0; j < b_m; j++)
+        for (int j = 0; j < c_k; j++)
         {
-            if (c->ja[j] == ja)
-                result_b->a[i] += el * c->a[j];
+            if (c->ja[j] ==  b->ia[i])
+            {
+                result_b->a[b->ja[i]] += b->a[i] * c->a[j];
+                break;
+            }
         }
         result_b->ia[i] = 0;
         result_b->ja[i] = i;
     }
 
     create_result(result_b);
+
+    if (flag == 1)
+        print_result_sp_matrix(result_b);
     return OK;
 }
 
@@ -113,7 +117,6 @@ void initialization_zero(int *a, int n)
     for (int i = 0; i < n; i++)
         a[i] = 0;
 }
-
 
 int create_result(special_matrix_t *result)
 {
@@ -128,7 +131,6 @@ int create_result(special_matrix_t *result)
             if (result->a[i + 1] != 0)
                 result->a[i] = result->a[i + 1];
         }
-
     }
     if (result->a[n - 1] == 0)
         count++;
@@ -148,4 +150,12 @@ void print_result_matrix(usuale_matrix_t *result_a)
 
     for (int j = 0; j < a_n; j++)
         printf("%d\n", result_a->data[j][0]);
+}
+
+void print_result_sp_matrix(special_matrix_t *result_b)
+{
+    int a_n = result_b->n;
+
+    for (int j = 0; j < a_n; j++)
+        printf("%d\n", result_b->a[j]);
 }

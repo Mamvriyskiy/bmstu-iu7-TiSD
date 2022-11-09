@@ -46,9 +46,7 @@ void output_matrix_vector(usuale_matrix_t *a, special_matrix_t *b, vector_matrix
 
     if (n <= 0 || m <= 0)
         printf("\nМатрица не была введена.\n");
-    else if (c->n <= 0 || c->n > 1000)
-        printf("\nСтолбец-вектор не был введен.\n");
-    else 
+    else
     {
         //print usual_matrix
         if (n > 50 || m > 50)
@@ -85,7 +83,12 @@ void output_matrix_vector(usuale_matrix_t *a, special_matrix_t *b, vector_matrix
                 printf("%d ", b->ia[i]);
             printf("\n");
         }
+    }
 
+    if (c->n <= 0 || c->n > 1000)
+        printf("\nСтолбец-вектор не был введен.\n");
+    else 
+    {
         if (c->k > 50)
         {
            printf("\nРазмер вектора-столбца слишком большой. Выведена не будет.\n"); 
