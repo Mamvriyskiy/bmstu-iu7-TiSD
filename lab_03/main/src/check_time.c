@@ -30,6 +30,8 @@ int check_time()
         test_auto_create_matrix(&a, &b, &result_a, &result_b, lenl);
         test_auto_create_vector(&vector, &vector_a, lenl);
 
+        // output_matrix_vector(&a, &b, &vector);
+        
         clock_t start, end;
         double usuale_mull, special_mull;
 
@@ -47,8 +49,8 @@ int check_time()
         end = clock();
         special_mull = (double)(end - start) / CLOCKS_PER_SEC;
         printf("Время умножения разреженной матрицы: %fc\n", special_mull);
-        printf("Память затраченная на разреженную матрицу: %lu\n", 3 * (&b)->k * sizeof(int));
-        printf("Память затраченная на разреженную матрицу-столбец: %lu\n", 2 * (&vector)->k * sizeof(int));
+        printf("Память затраченная на разреженную матрицу: %lu\n", 2 * (&b)->k * sizeof(int) + (&b)->n * sizeof(int));
+        printf("Память затраченная на разреженную матрицу-столбец: %lu\n", (&vector)->k * sizeof(int) + (&vector)->n * sizeof(int));
 
         free((&a)->data);
         free((&vector_a)->data);
@@ -69,19 +71,24 @@ int check_time()
 
 void check_multiplication_special_matrix(special_matrix_t *b, vector_matrix_t *c, special_matrix_t *result_b)
 {
-    int b_k = b->k;
-    int c_k = c->k;
+    int b_n = b->n;
 
-    for (int i = 0; i < b_k; i++)
+    // printf("%d %d", );
+    int index = 0;
+    for (int i = 0; i < b_n; i++)
     {
-        for (int j = 0; j < c_k; j++)
+        if (b->ia[i] != b->ia[i + 1])
         {
-            if (c->ja[j] == b->ia[i])
+            int k = b->ia[i];
+            while (k < b->ia[i + 1])
             {
-                result_b->a[b->ja[i]] += b->a[i] * c->a[j];
-                break;
+                int pos = c->ja[b->ja[k]];
+                if (pos != c->ja[b->ja[k] + 1])
+                    result_b->a[index] += b->a[k] * c->a[pos];
+                k++;
             }
         }
+        index++;
         result_b->ia[i] = 0;
         result_b->ja[i] = i;
     }
@@ -107,13 +114,10 @@ void test_auto_create_matrix(usuale_matrix_t *a, special_matrix_t *b, usuale_mat
     b->m = lenl;
     b->n = lenl;
 
-    int b_k = lenl / 100 * 19, k = 0;
-
-    b_k *= b_k;
-    // printf("M: %lf\n", (double) b_k / (double) (lenl * lenl) * 100);
+    int b_k = lenl * lenl / 1000 * 90, k = 0;
 
     b->k = b_k;
-    alloc_special_matrix(b, b_k);
+    alloc_special_matrix(b, b_k, lenl);
     a->data = allocated_matrix(a->n, a->m);
     initialization_zero_matrix(a->data, lenl, lenl);
 
@@ -121,31 +125,39 @@ void test_auto_create_matrix(usuale_matrix_t *a, special_matrix_t *b, usuale_mat
     res_a->n = lenl;
     res_a->m = 1;
     res_b->k = lenl;
-
-    int flag = 0;
+    int index = 0;
     for (int i = 0; i < lenl; i++)
     {
+        int flag = 1;
         for (int j = 0; j < lenl; j++)
         {
             if (k < b_k)
             {
-                int el = rand() % 100;
+                if (flag == 1)
+                {
+                    flag = 0;
+                    b->ia[index] = k;
+                    index++;
+                }
+                // int el = rand() % 100;
+                int el = k + 1;
+                if (el != 0)
+                {
+                    b->a[k] = el;
+                    b->ja[k] = j;
+                }
                 a->data[i][j] = el;
-                b->a[k] = el;
-                b->ja[k] = i;
-                b->ia[k] = j;
                 k++;
             }
             else
-            {
-                flag = 1;
-                break;
-            }
+                a->data[i][j] = 0;
         }
         if (flag == 1)
-            break;
+            b->ia[index++] = k;
     }
-    alloc_special_matrix(res_b, k);
+    b->ia[index] = k;
+
+    alloc_special_matrix(res_b, k, lenl);
 
     res_b->n = lenl;
     res_b->m = 1;
@@ -153,12 +165,11 @@ void test_auto_create_matrix(usuale_matrix_t *a, special_matrix_t *b, usuale_mat
 
 void test_auto_create_vector(vector_matrix_t *c, usuale_matrix_t *vctr, int lenl)
 {
-    int a_k = lenl / 100 * 5;
+    int a_k = lenl / 100 * 90;
 
-    // printf("V: %d %d\n", a_k, lenl);
     c->a = malloc(a_k * sizeof(int));
-    c->ja = malloc(a_k * sizeof(int));
-    c->n = lenl;
+    c->ja = malloc((lenl + 1) * sizeof(int));
+    c->n = lenl + 1;
     c->k = a_k;
     vctr->m = 1;
     vctr->n = lenl;
@@ -168,8 +179,8 @@ void test_auto_create_vector(vector_matrix_t *c, usuale_matrix_t *vctr, int lenl
     for (int i = 0; i < a_k; i++)
     {
         int el = rand() % 100;
-        c->ja[i] = i;
-        c->a[i] = el;
         vctr->data[i][0] = el;
     }
+
+    make_special_vector(c, vctr);
 }

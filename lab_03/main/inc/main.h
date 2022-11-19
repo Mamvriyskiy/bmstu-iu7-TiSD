@@ -11,6 +11,7 @@ typedef struct
 
 // typedef struct 
 // {
+//     int n;
 //     int *list;
 // } list_t;
 
@@ -22,8 +23,8 @@ typedef struct
     int k; //количество ненулевых элементов
 
     int *a; //массив ненулевых элементов 
-    int *ja; //массив с индексами по строке
-    int *ia; //массив с индексами по столбцу
+    int *ja; //массив с индексами по столбцу
+    int *ia; //массив с индексами по строке
 } special_matrix_t;
 
 //vector-matrix

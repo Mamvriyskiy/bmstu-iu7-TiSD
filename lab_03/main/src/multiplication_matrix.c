@@ -57,7 +57,7 @@ int multiplication_usuale_matrix(usuale_matrix_t *a, usuale_matrix_t *c, usuale_
     result_a->n = a_n;
     result_a->m = 1;
 
-    for (int i = 0; i < a_m; i++)
+    for (int i = 0; i < a_n; i++)
     {
         for (int k = 0; k < a_m; k++)
             result_a->data[i][0] += a->data[i][k] * c->data[k][0]; 
@@ -73,12 +73,10 @@ int multiplication_special_matrix(special_matrix_t *b, vector_matrix_t *c, speci
 {
     int b_m = b->m;
     int b_n = b->n;
-    int b_k = b->k;
     
     int c_n = c->n;
-    int c_k = c->k;
 
-    if (flag == 1 && b_m != c_n)
+    if (flag == 1 && b_m != c_n - 1)
     {
         printf("\nУмножение провести невозможно. Разные размерности.\n");
         return -3;
@@ -87,20 +85,26 @@ int multiplication_special_matrix(special_matrix_t *b, vector_matrix_t *c, speci
     result_b->n = b_n;
     result_b->m = 1;
 
-    if (alloc_special_matrix(result_b, b_m) != OK)
+    if (alloc_special_matrix(result_b, b_m, b_n) != OK)
         return -4;
 
     initialization_zero(result_b->a, b_m);
-    for (int i = 0; i < b_k; i++)
+    int index = 0;
+
+    for (int i = 0; i < b_n; i++)
     {
-        for (int j = 0; j < c_k; j++)
+        if (b->ia[i] != b->ia[i + 1])
         {
-            if (c->ja[j] ==  b->ia[i])
+            int k = b->ia[i];
+            while (k < b->ia[i + 1])
             {
-                result_b->a[b->ja[i]] += b->a[i] * c->a[j];
-                break;
+                int pos = c->ja[b->ja[k]];
+                if (pos != c->ja[b->ja[k] + 1])
+                    result_b->a[index] += b->a[k] * c->a[pos];
+                k++;
             }
         }
+        index++;
         result_b->ia[i] = 0;
         result_b->ja[i] = i;
     }

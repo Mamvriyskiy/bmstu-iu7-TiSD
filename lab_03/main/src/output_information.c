@@ -35,8 +35,8 @@ void print_information_multiplication()
 {
     printf("\n"
            "1 - Умножение простой матрицы на вектор-столбец\n"
-           "2 - Умножение разряженной матрицы на вектор-столбец\n"
-           "0 - Выоход в главное меню\n");
+           "2 - Умножение разреженной матрицы на вектор-столбец\n"
+           "0 - Выход в главное меню\n");
 }
 
 void output_matrix_vector(usuale_matrix_t *a, special_matrix_t *b, vector_matrix_t *c)
@@ -63,23 +63,23 @@ void output_matrix_vector(usuale_matrix_t *a, special_matrix_t *b, vector_matrix
         }
 
         if (b->k > 50)  
-            printf("\nРазмер разряженной матрицы слишком большой. Выведена не будет.\n");
+            printf("\nРазмер разреженной матрицы слишком большой. Выведена не будет.\n");
         else
         {
-            printf("\nВывод разряженной матрицы: \n\n");
+            printf("\nВывод разреженной матрицы: \n\n");
             int count = b->k;
             printf("Элемент:        ");
             for (int i = 0; i < count; i++)
                 printf("%d ", b->a[i]);
             printf("\n");
 
-            printf("Индекс строки:  ");
+            printf("Индекс столбца:  ");
             for (int i = 0; i < count; i++)
                 printf("%d ", b->ja[i]);
             printf("\n");
 
-            printf("Индекс столбца: ");
-            for (int i = 0; i < count; i++)
+            printf("Индекс строки: ");
+            for (int i = 0; i < n + 1; i++)
                 printf("%d ", b->ia[i]);
             printf("\n");
         }
@@ -103,7 +103,7 @@ void output_matrix_vector(usuale_matrix_t *a, special_matrix_t *b, vector_matrix
             printf("\n");
 
             printf("Индекс строки:  ");
-            for (int i = 0; i < v; i++)
+            for (int i = 0; i < c->n; i++)
                 printf("%d ", c->ja[i]);
             printf("\n");
         }

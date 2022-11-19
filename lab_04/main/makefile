@@ -25,5 +25,4 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(INC) $(OBJ_DIR)
 .PHONY : clean
 
 clean:
-	rm -rf $(OBJ_DIR) *.exe *.txt ./func_tests/*.txt *.out;
- 
+	rm -rf $(OBJ_DIR) *.exe *.txt *.out;

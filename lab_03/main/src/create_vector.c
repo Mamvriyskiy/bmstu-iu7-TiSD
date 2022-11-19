@@ -58,15 +58,15 @@ int create_vector(vector_matrix_t *c, usuale_matrix_t *a)
     }
 
     c->a = malloc(a_k * sizeof(int));
-    c->ja = malloc(a_k * sizeof(int));
+    c->ja = malloc((a_n + 1) * sizeof(int));
     a->data = allocated_matrix(a_n , 1);
-    c->n = a_n;
+    c->n = a_n + 1;
     c->k = a_k;
     a->m = 1;
     a->n = a_n;
 
     int n, el;
-    printf("\nВвод разряженного стобца-вектора: \n");
+    printf("\nВвод разреженного стобца-вектора: \n");
     initialization_zero_matrix(a->data, a_n, 1);
 
     for (int i = 0; i < a_k; i++)
@@ -79,14 +79,12 @@ int create_vector(vector_matrix_t *c, usuale_matrix_t *a)
 
             if (scanf("%d %d", &n, &el) == 2)
             {
-                if (check_position_vector(c->ja, i, n - 1) == OK)
+                if (a->data[n - 1][0] == 0)
                 {
-                    if (el == 0 || n < 1 || n > a_n)
+                    if (n < 1 || n > a_n)
                         printf("\nНомер строки введен неверно(Строка: 1 - %d).\n", a_n);
                     else
                     {
-                        c->a[i] = el;
-                        c->ja[i] = n - 1;
                         a->data[n - 1][0] = el;
                         rc = OK;
                     }
@@ -99,18 +97,33 @@ int create_vector(vector_matrix_t *c, usuale_matrix_t *a)
         }
     }
 
+    make_special_vector(c, a);
+
     return OK;
 }
 
-int check_position_vector(int *c, int count, int n)
+void make_special_vector(vector_matrix_t *c, usuale_matrix_t *a)
 {
-    for (int i = 0; i < count; i++)
+    int n = a->n, k = 0;
+    int index = 0, count_j = 0;
+    int num; 
+
+    for (int i = 0; i < n; i++)
     {
-        if (c[i] == n)
-            return -3;
+        num = a->data[i][0];
+        if (num != 0)
+        {
+            c->a[index++] = num;
+            c->ja[i] = count_j;
+            count_j++;
+            k++;
+        }
+        else
+            c->ja[i] = count_j;
     }
 
-    return OK;
+    c->ja[n] = count_j;
+    c->k = k;
 }
 
 int auto_create_vector(vector_matrix_t *c, usuale_matrix_t *a, int flag, int size)
@@ -131,9 +144,9 @@ int auto_create_vector(vector_matrix_t *c, usuale_matrix_t *a, int flag, int siz
         a_n = size;
 
     c->a = malloc(a_n * sizeof(int));
-    c->ja = malloc(a_n * sizeof(int));
-    a->data = allocated_matrix(a_n , 1);
-    c->n = a_n;
+    c->ja = malloc((a_n + 1) * sizeof(int));
+    a->data = allocated_matrix(a_n, 1);
+    c->n = a_n + 1;
     c->k = a_n;
     a->m = 1;
     a->n = a_n;
@@ -143,11 +156,10 @@ int auto_create_vector(vector_matrix_t *c, usuale_matrix_t *a, int flag, int siz
     for (int i = 0; i < a_n; i++)
     {
         int el = rand() % 100;
-        c->a[i] = el;
-        c->ja[i] = i;
         a->data[i][0] = el;
     }
 
+    make_special_vector(c, a);
     return OK;
 }
 

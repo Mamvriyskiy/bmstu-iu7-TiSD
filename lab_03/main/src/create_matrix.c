@@ -3,6 +3,7 @@
 #include "errors.h"
 #include "create_matrix.h"
 #include "main.h"
+#include "create_vector.h"
 
 int create_usuale_matrix(usuale_matrix_t *a, special_matrix_t *b)
 {
@@ -61,7 +62,7 @@ int create_usuale_matrix(usuale_matrix_t *a, special_matrix_t *b)
     
     b->k = count;
 
-    if (alloc_special_matrix(b, count) != OK)
+    if (alloc_special_matrix(b, count, a_n) != OK)
         return -4;
 
 
@@ -86,23 +87,35 @@ void make_special_matrix(usuale_matrix_t *a, special_matrix_t *b)
 {
     int n = a->n;
     int m = a->m;
-    int count = 0;
+    int count_j = 0, count_i = 0;
     int num; 
 
     for (int i = 0; i < n; i++)
     {
+        int flag = 1;
         for (int j = 0; j < m; j++)
         {
             num = a->data[i][j];
             if (num != 0)
             {
-                b->a[count] = num;
-                b->ja[count] = i;
-                b->ia[count] = j;
-                count++;
+                b->a[count_j] = num;
+                b->ja[count_j] = j;
+                if (flag == 1)
+                {
+                    flag = 0;
+                    b->ia[count_i] = count_j;
+                    count_i++;
+                }
+                count_j++;
             }
         }
+
+        if (flag == 1)
+            b->ia[count_i++] = count_j;
+
     }
+
+    b->ia[count_i] = count_j;
 }
 
 int create_special_matrix(usuale_matrix_t *a, special_matrix_t *b)
@@ -141,14 +154,15 @@ int create_special_matrix(usuale_matrix_t *a, special_matrix_t *b)
 
     b->k = b_k;
 
-    if (alloc_special_matrix(b, b_k) != OK)
+    if (alloc_special_matrix(b, b_k, b_n) != OK)
         return -4;
 
     a->data = allocated_matrix(b_n, b_m);
     if (a->data == NULL)
         return -4;
 
-    int n, m, el, count = 0;
+    int n, m, el;
+    initialization_zero_matrix(a->data, b_n, b_m);
     for (int i = 0; i < b_k; i++)
     {
         int rc = -1;
@@ -161,13 +175,8 @@ int create_special_matrix(usuale_matrix_t *a, special_matrix_t *b)
             {
                 if (n > 0 && m > 0 && n <= b_n && m <= b_m)
                 {
-                    if (check_position(b->ja, b->ia, count, n - 1, m - 1) == OK)
+                    if (a->data[n - 1][m - 1] == 0)
                     {
-                        b->a[count] = el;
-                        b->ja[count] = n - 1;
-                        b->ia[count] = m - 1;
-                        count++;
-
                         a->data[n - 1][m - 1] = el;
                         rc = OK;
                     }
@@ -182,19 +191,10 @@ int create_special_matrix(usuale_matrix_t *a, special_matrix_t *b)
         }
     }
 
+    make_special_matrix(a, b);
+
     return OK;
 }
-
-int check_position(int *a, int *b, int count, int n, int m)
-{
-    for (int i = 0; i < count; i++)
-    {
-        if (a[i] == n && b[i] == m)
-            return -5;
-    }
-    return OK;
-}
-
 
 int auto_create_matrix(usuale_matrix_t *a, special_matrix_t *b)
 {
@@ -226,26 +226,24 @@ int auto_create_matrix(usuale_matrix_t *a, special_matrix_t *b)
 
     a->data = allocated_matrix(b_n, b_m);
 
-    if (alloc_special_matrix(b, b_n * b_m) != OK)
+    if (alloc_special_matrix(b, b_n * b_m, b_n) != OK)
         return -4;
 
-    int el, count = 0;
+    int el;
     for (int i = 0; i < b_n; i++)
     {
         for (int j = 0; j < b_m; j++)
         {
             el = rand() % 100;
             a->data[i][j] = el;
-            b->ja[count] = i;
-            b->ia[count] = j;
-            b->a[count] = el;
-            count++;
         }
     }
+
+    make_special_matrix(a, b);
     return OK;
 }
 
-int alloc_special_matrix(special_matrix_t *b, int b_k)
+int alloc_special_matrix(special_matrix_t *b, int b_k, int b_n)
 {
     b->a = malloc(b_k * sizeof(int));
     if (b->a == NULL)
@@ -255,7 +253,7 @@ int alloc_special_matrix(special_matrix_t *b, int b_k)
     if (b->ja == NULL)
         return -4;
 
-    b->ia = malloc(b_k * sizeof(int));
+    b->ia = malloc((b_n + 1) * sizeof(int));
     if (b->ia == NULL)
         return -4;
     

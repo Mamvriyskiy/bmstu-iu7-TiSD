@@ -9,7 +9,7 @@ void make_special_matrix(usuale_matrix_t *a, special_matrix_t *b);
 int create_special_matrix(usuale_matrix_t *a, special_matrix_t *b);
 int check_position(int *a, int *b, int count, int n, int m);
 int auto_create_matrix(usuale_matrix_t *a, special_matrix_t *b);
-int alloc_special_matrix(special_matrix_t *b, int count);
+int alloc_special_matrix(special_matrix_t *b, int b_k, int b_n);
 
 #endif
 
